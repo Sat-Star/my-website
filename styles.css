@@ -1,0 +1,36 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+  display: flex;
+  flex-wrap: nowrap;
+  margin-left: 15px;
+  gap: 15px;
+}
+
+.profile-pic {
+  height: 25px;
+  border-radius: 50%;
+}
+
+button {
+  cursor: pointer;
+}
+
+.thoughts{
+    display: flex;
+    padding: 50px;
+    flex-wrap: wrap;
+}
+
+.th{
+    padding: 20px;
+    border-radius: 20%;
+    height: 200px;
+    width: 200px;
+    border: 2px solid black;
+    margin: auto;
+}
