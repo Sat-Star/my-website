@@ -259,19 +259,26 @@ main {
   align-items: center;
   justify-content: flex-start;
   padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.02);
   margin-top: 8px;
 }
-.card .meta { margin-bottom: 8px; }
+.card .meta {
+  margin-bottom: 8px;
+}
 .card button.view-btn {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   padding: 8px 14px;
   border-radius: 8px;
   color: var(--muted);
 }
-.card button.view-btn:hover { color: var(--accent); border-color: rgba(255,209,102,0.18); }
-.card button[disabled] { opacity: 0.6; }
+.card button.view-btn:hover {
+  color: var(--accent);
+  border-color: rgba(255, 209, 102, 0.18);
+}
+.card button[disabled] {
+  opacity: 0.6;
+}
 .muted {
   color: var(--muted);
 }
@@ -299,9 +306,15 @@ main {
   .card {
     height: 200px;
   }
-  .title { font-size: 18px; }
-  .panel { padding: 14px; }
-  .modal-panel { width: 92%; }
+  .title {
+    font-size: 18px;
+  }
+  .panel {
+    padding: 14px;
+  }
+  .modal-panel {
+    width: 92%;
+  }
 }
 
 /* Mobile */
@@ -314,12 +327,25 @@ main {
     height: 180px;
     padding: 10px;
   }
-  .title { font-size: 16px; }
-  button { padding: 6px 8px; }
-  .panel { padding: 12px; }
-  .modal-panel { width: 96%; padding: 12px; }
-  .card h3 { font-size: 14px; }
-  .card .meta { font-size: 11px; }
+  .title {
+    font-size: 16px;
+  }
+  button {
+    padding: 6px 8px;
+  }
+  .panel {
+    padding: 12px;
+  }
+  .modal-panel {
+    width: 96%;
+    padding: 12px;
+  }
+  .card h3 {
+    font-size: 14px;
+  }
+  .card .meta {
+    font-size: 11px;
+  }
 }
 
 /* small artistic accents */
@@ -375,9 +401,12 @@ main {
 .view-more {
   margin-top: 10px;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--muted);
   padding: 8px 12px;
   border-radius: 8px;
 }
-.view-more:hover { color: var(--accent); border-color: rgba(255,209,102,0.18); }
+.view-more:hover {
+  color: var(--accent);
+  border-color: rgba(255, 209, 102, 0.18);
+}

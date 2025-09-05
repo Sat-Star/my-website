@@ -63,12 +63,14 @@ function makeCard(entry, currentUser) {
   const div = document.createElement("div");
   div.className = "card";
   // content area (meta, title, preview)
-  const content = document.createElement('div');
-  content.className = 'card-content';
+  const content = document.createElement("div");
+  content.className = "card-content";
   const meta = document.createElement("div");
   meta.className = "meta";
   // only show username and last edited datetime (if present)
-  const updated = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : null;
+  const updated = entry.updatedAt
+    ? new Date(entry.updatedAt).toLocaleString()
+    : null;
   meta.textContent = entry.ownerName || "anon";
   if (updated) meta.textContent += ` \u2022 edited ${updated}`;
   content.appendChild(meta);
@@ -80,10 +82,10 @@ function makeCard(entry, currentUser) {
   const p = document.createElement("div");
   p.className = "card-body";
   // show trimmed preview to avoid overflow
-  const preview = (entry.body || '').replace(/<[^>]+>/g, '');
+  const preview = (entry.body || "").replace(/<[^>]+>/g, "");
   const maxChars = 220;
   if (preview.length > maxChars) {
-    p.innerHTML = preview.slice(0, maxChars) + '...';
+    p.innerHTML = preview.slice(0, maxChars) + "...";
   } else {
     p.innerHTML = preview;
   }
@@ -94,17 +96,17 @@ function makeCard(entry, currentUser) {
   const actions = document.createElement("div");
   actions.className = "card-actions";
   // View button - available to everyone
-  const viewBtn = document.createElement('button');
-  viewBtn.textContent = 'View';
-  viewBtn.className = 'view-btn';
-  viewBtn.addEventListener('click', ()=>{
-    if(window.openView) window.openView(entry);
+  const viewBtn = document.createElement("button");
+  viewBtn.textContent = "View";
+  viewBtn.className = "view-btn";
+  viewBtn.addEventListener("click", () => {
+    if (window.openView) window.openView(entry);
     else {
       // fallback: show read-modal
-      const rm = document.getElementById('read-modal');
-      document.getElementById('read-title').textContent = entry.title || '';
-      document.getElementById('read-body').innerHTML = entry.body;
-      rm.setAttribute('aria-hidden','false');
+      const rm = document.getElementById("read-modal");
+      document.getElementById("read-title").textContent = entry.title || "";
+      document.getElementById("read-body").innerHTML = entry.body;
+      rm.setAttribute("aria-hidden", "false");
     }
   });
   actions.appendChild(viewBtn);
@@ -291,11 +293,11 @@ document.addEventListener("DOMContentLoaded", () => {
     composeSubmit.textContent = "Post";
     composeKindSel.value = "thought";
     composeTitle.value = "";
-  composeQuill.enable(true);
-  composeTitle.disabled = false;
-  composeKindSel.disabled = false;
-  composeImage.disabled = false;
-    composeSubmit.style.display = '';
+    composeQuill.enable(true);
+    composeTitle.disabled = false;
+    composeKindSel.disabled = false;
+    composeImage.disabled = false;
+    composeSubmit.style.display = "";
     composeQuill.setText("");
     composeModal.setAttribute("aria-hidden", "false");
     // focus the editor after modal opens
@@ -310,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
     editEntryId = null;
     composeSubmit.textContent = "Post";
     composeQuill.enable(true);
-    composeSubmit.style.display = '';
+    composeSubmit.style.display = "";
     // restore inputs
     try {
       composeTitle.disabled = false;
@@ -320,20 +322,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // global view function: open compose modal in read-only mode
-  window.openView = function(entry){
+  window.openView = function (entry) {
     editEntryId = null;
-    composeKindSel.value = entry.kind || 'thought';
+    composeKindSel.value = entry.kind || "thought";
     // populate fields but make everything read-only
-    composeTitle.value = entry.title || '';
-    composeQuill.root.innerHTML = entry.body || '';
+    composeTitle.value = entry.title || "";
+    composeQuill.root.innerHTML = entry.body || "";
     composeQuill.enable(false);
-    composeSubmit.style.display = 'none';
+    composeSubmit.style.display = "none";
     try {
       composeTitle.disabled = true;
       composeKindSel.disabled = true;
       composeImage.disabled = true;
     } catch (e) {}
-    composeModal.setAttribute('aria-hidden','false');
+    composeModal.setAttribute("aria-hidden", "false");
   };
 
   // intercept image button in toolbar to use the compose file input
