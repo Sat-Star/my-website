@@ -4,37 +4,160 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to MY WORLD</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Quill rich text editor -->
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="main">
-      <p>Hello, starting small but aiming big</p>
+      <header class="site-header">
+        <div class="title">MY WORLD</div>
+        <nav class="navbar">
+          <img class="profile-pic" src="./images/pfp.png" alt="pfp" />
+          <button id="compose-btn">Compose</button>
+          <input id="header-search" placeholder="Search title..." />
+          <button id="login-btn">Login</button>
+          <button data-target="home">Home</button>
+          <button data-target="thoughts">Thoughts</button>
+          <button data-target="learnings">Learnings</button>
+          <button data-target="notes">Notes</button>
+          <!-- Static auth popup (fallback) -->
+          <div class="auth-popup" style="display: none">
+            <button class="auth-close">×</button>
+            <input class="auth-user" placeholder="username" />
+            <input class="auth-pass" type="password" placeholder="password" />
+            <button class="auth-register">Register</button>
+            <button class="auth-login">Login</button>
+          </div>
+        </nav>
+      </header>
 
-      <div class="navbar">
-        <img class="profile-pic" src="./images/pfp.png" alt="pfp"/>
-        <button>Home</button>
-        <button>About Me</button>
-        <button>Contact Me</button>
-        <button>Dekhte hain</button>
-      </div>
+      <main>
+        <section id="home" class="panel home-panel">
+          <p class="lead">
+            Hello — starting small but aiming big. This is a place for short
+            thoughts, learnings and quick notes.
+          </p>
+        </section>
 
-      <div class="thoughts">
-        <h1>Thoughts</h1>
-        <div class="th t1">"What would you wish you'd done before you died?" Do you know the answer to this question? If not, then there is still a lot to learn</div>
-        <div class="th t2">Will later inject the thoughts through javascript, future ideasss</div>
-        <div class="th t3">Snowflake</div>
-        <div class="th t4">Nobody cares, do what you like</div>
-      </div>
+        <section id="thoughts" class="panel thoughts-panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>Thoughts</h2>
+              <div class="panel-subtitle">
+                Short reflections and quick ideas.
+              </div>
+            </div>
+            <div class="panel-actions">
+              <button
+                class="create-btn"
+                data-kind="thought"
+                onclick="openCompose('thought')"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+          <div id="thoughts-list" class="cards"></div>
+        </section>
 
-      <div class="learnings">
-        <h1>Learnings</h1>
-        <div class="tl t1">CSS ka kuch kuch</div>
-        <div class="tl t2">yaha pe daal dunga filhal ke liye</div>
-        <div class="tl t3">bas box banake chhoda hai</div>
-        <div class="tl t4">Nobody cares, do what you like</div>
-      </div>
+        <section id="learnings" class="panel learnings-panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>Learnings</h2>
+              <div class="panel-subtitle">
+                Things I learned — experiments, takeaways, and notes.
+              </div>
+            </div>
+            <div class="panel-actions">
+              <button
+                class="create-btn"
+                data-kind="learning"
+                onclick="openCompose('learning')"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+          <div id="learnings-list" class="cards"></div>
+        </section>
 
+        <section id="notes" class="panel notes-panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>Notes</h2>
+              <div class="panel-subtitle">
+                Quick ephemeral notes — creative liberties section.
+              </div>
+            </div>
+            <div class="panel-actions">
+              <button
+                class="create-btn"
+                data-kind="note"
+                onclick="openCompose('note')"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+          <div id="notes-list" class="cards"></div>
+        </section>
+      </main>
     </div>
   </body>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <!-- Compose modal -->
+  <div id="compose-modal" class="modal" aria-hidden="true">
+    <div class="modal-panel">
+      <button id="compose-close">Close</button>
+      <div class="auth-row">
+        <input id="compose-title" placeholder="Title (optional)" />
+        <select id="compose-kind">
+          <option value="thought">Thought</option>
+          <option value="learning">Learning</option>
+          <option value="note">Note</option>
+        </select>
+      </div>
+      <div id="compose-editor" class="editor"></div>
+      <div class="modal-actions">
+        <input
+          aria-label="Insert image"
+          type="file"
+          id="compose-image"
+          accept="image/*"
+          style="display: none"
+        />
+        <button id="compose-submit">Post</button>
+      </div>
+    </div>
+    <!-- Read more modal -->
+    <div id="read-modal" class="modal" aria-hidden="true">
+      <div class="modal-panel">
+        <button id="read-close">Close</button>
+        <h3 id="read-title"></h3>
+        <div id="read-body" class="editor"></div>
+      </div>
+    </div>
+  </div>
+  <!-- fallback helper so inline Create buttons work even if scripts load late -->
+  <script>
+    window.openCompose =
+      window.openCompose ||
+      function (kind) {
+        try {
+          const modal = document.getElementById("compose-modal");
+          const kindSel = document.getElementById("compose-kind");
+          const title = document.getElementById("compose-title");
+          if (kindSel) kindSel.value = kind || "thought";
+          if (title) title.value = "";
+          if (modal) modal.setAttribute("aria-hidden", "false");
+        } catch (e) {
+          /* noop */
+        }
+      };
+  </script>
   <script src="script.js"></script>
 </html>
