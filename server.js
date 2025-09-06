@@ -13,8 +13,7 @@ app.use(cors());
 app.use(express.json({ limit: "6mb" }));
 app.use(express.urlencoded({ limit: "6mb", extended: true }));
 
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/my-website";
+const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
 
 mongoose
@@ -231,5 +230,10 @@ app.delete("/api/entries/:id", authMiddleware, async (req, res) => {
 // Serve static frontend files
 app.use(express.static("."));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+// export the app for serverless platforms (Vercel) and only listen when run directly
+module.exports = app;
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+}
