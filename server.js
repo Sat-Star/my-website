@@ -169,6 +169,23 @@ app.get("/api/entries", async (req, res) => {
   }
 });
 
+// health endpoint — useful for deployments and quick checks
+app.get("/api/health", async (req, res) => {
+  try {
+    const connState = mongoose.connection.readyState; // 0 disconnected, 1 connected, 2 connecting, 3 disconnecting
+    const states = {
+      0: "disconnected",
+      1: "connected",
+      2: "connecting",
+      3: "disconnecting",
+    };
+    res.json({ ok: true, mongo: states[connState] || connState });
+  } catch (err) {
+    console.error("health check error", err);
+    res.status(500).json({ ok: false, error: "health check failed" });
+  }
+});
+
 // create (requires auth)
 app.post("/api/entries", authMiddleware, async (req, res) => {
   try {
