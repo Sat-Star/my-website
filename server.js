@@ -13,14 +13,37 @@ app.use(cors());
 app.use(express.json({ limit: "6mb" }));
 app.use(express.urlencoded({ limit: "6mb", extended: true }));
 
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/my-website";
+const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
 
-mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Mongo connection error", err));
+// Serverless-friendly mongoose connect: cache the connection and set sensible timeouts
+// to avoid long blocking during cold starts or network issues.
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  // Fail fast if the server can't be reached
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+};
+
+// Use a global cached promise for serverless environments so multiple invocations
+// reuse the same connection when possible (reduces connect overhead).
+if (!global.__mongoosePromise) {
+  global.__mongoosePromise = mongoose
+    .connect(MONGO_URI, mongooseOptions)
+    .then(() => {
+      console.log("Connected to MongoDB");
+      return mongoose;
+    })
+    .catch((err) => {
+      console.error("Mongo connection error", err);
+      // keep the rejection so callers can handle it
+      throw err;
+    });
+} else {
+  // already have a promise; attach a noop handler to avoid unhandled rejections
+  global.__mongoosePromise.catch(() => {});
+}
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -159,14 +182,45 @@ app.get("/api/entries", async (req, res) => {
       filter.$or = [{ title: re }, { body: re }];
     }
     const skip = Math.max(0, parseInt(page)) * parseInt(limit);
+    // Cap the limit to avoid very large responses and add a query timeout + lean()
+    const safeLimit = Math.min(50, Math.max(1, parseInt(limit)));
     const list = await Entry.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(safeLimit)
+      .lean()
+      .maxTimeMS(10000); // 10s max on DB side
     res.json(list);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "server" });
+  }
+});
+
+// Middleware: reject non-health API requests when Mongo isn't connected to fail fast
+app.use((req, res, next) => {
+  if (req.path === "/api/health") return next();
+  const state = mongoose.connection.readyState; // 1 = connected
+  if (state !== 1) {
+    return res.status(503).json({ error: "service unavailable - db" });
+  }
+  next();
+});
+
+// health endpoint — useful for deployments and quick checks
+app.get("/api/health", async (req, res) => {
+  try {
+    const connState = mongoose.connection.readyState; // 0 disconnected, 1 connected, 2 connecting, 3 disconnecting
+    const states = {
+      0: "disconnected",
+      1: "connected",
+      2: "connecting",
+      3: "disconnecting",
+    };
+    res.json({ ok: true, mongo: states[connState] || connState });
+  } catch (err) {
+    console.error("health check error", err);
+    res.status(500).json({ ok: false, error: "health check failed" });
   }
 });
 
@@ -231,5 +285,10 @@ app.delete("/api/entries/:id", authMiddleware, async (req, res) => {
 // Serve static frontend files
 app.use(express.static("."));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+// export the app for serverless platforms (Vercel) and only listen when run directly
+module.exports = app;
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+}
